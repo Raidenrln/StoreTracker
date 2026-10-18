@@ -1,0 +1,123 @@
+import { Search, SunDim } from "lucide-react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import StoreList from "../components/StoreList";
+
+export type SampleTindahan = {
+  id: string;
+  name: string;
+  category: string;
+  openTime: string;
+  closeTime: string;
+  facebook: string;
+};
+
+export default function Store() {
+  const category = ["All", "Grocery", "Pharmacy", "Hardware", "Bakery"];
+  const [activeCategory, setActiveCategory] = useState("All");
+  const tindahan = [
+    {
+      id: "341312321321",
+      name: "Aling Nena Sari-Sari",
+      category: "Grocery",
+      openTime: "08:00",
+      closeTime: "20:00",
+      facebook: "",
+    },
+  ];
+  return (
+    <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+      <View style={style.container}>
+        <View style={style.content}>
+          <View style={style.header}>
+            <Text style={style.title}>Stores Tracked</Text>
+            <Pressable>
+              <SunDim size={36} />
+            </Pressable>
+          </View>
+          {/* Search input content */}
+          <View style={style.searchContent}>
+            <Search size={20} style={style.searchIcon} />
+            <TextInput style={style.searchInput} placeholder="Search stores" />
+          </View>
+          {/*  */}
+          <View style={style.categoryContent}>
+            {category.map((item) => (
+              <Pressable
+                key={item}
+                style={activeCategory === item ? style.activeCategory : style.categoryButtons}
+                onPress={() => setActiveCategory(item)}
+              >
+                <Text style={{ color: activeCategory === item ? "white" : "black" }}>{item}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {/* Store List content */}
+          <View>
+            <StoreList stores={tindahan} />
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  content: {
+    flex: 1,
+    gap: 12,
+  },
+  header: {
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 700,
+  },
+  searchContent: {
+    position: "relative",
+    justifyContent: "center",
+  },
+  searchInput: {
+    borderWidth: 1,
+    backgroundColor: "white",
+    borderColor: "#E4EBE4",
+    borderRadius: 12,
+    paddingLeft: 48,
+    fontSize: 16,
+  },
+  searchIcon: {
+    position: "absolute",
+    color: "#647368",
+    zIndex: 1,
+    left: 12,
+  },
+  categoryContent: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  activeCategory: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#17724A",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#17724A",
+  },
+  categoryButtons: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "white",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "#C6D2C6",
+  },
+});
