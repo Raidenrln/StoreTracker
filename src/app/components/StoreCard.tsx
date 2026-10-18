@@ -36,6 +36,7 @@ const StoreCard = ({ stores }: StoreCardModel) => {
           <Pressable style={styles.storeButtons}>
             <Pencil color={"#006134"} />
           </Pressable>
+
           <Pressable style={styles.storeButtonsDelete}>
             <Trash color={"#852111"} style={styles.storeButtonIcons} />
           </Pressable>
