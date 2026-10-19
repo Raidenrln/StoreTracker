@@ -97,9 +97,7 @@ export default function Products() {
             <FlatList
               data={filteredProducts}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <ProductCard products={item} storeName={item.storeBelong} />
-              )}
+              renderItem={({ item }) => <ProductCard products={item} />}
               contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={<Text>No products found.</Text>}

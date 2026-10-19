@@ -1,17 +1,16 @@
-import { Eye, Pencil, ShoppingCart, Store, Tag, Trash } from "lucide-react-native";
+import { Pencil, Scale, ShoppingCart, Store, Tag, Trash } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SampleProdukto } from "../(tabs)/products";
+import { tindahan } from "../(tabs)/store";
 
 interface ProductCardModel {
   products: SampleProdukto;
-  storeName?: string;
 }
 
 const formatPrice = (price: number) => `₱${price.toFixed(2)}`;
 
-const ProductCard = ({ products, storeName }: ProductCardModel) => {
-  const latest = products.priceHistory[products.priceHistory.length - 1];
-
+const ProductCard = ({ products }: ProductCardModel) => {
+  const findTargetTindahan = tindahan.find((t) => t.id === products.storeBelong);
   return (
     <View style={styles.content}>
       <View style={styles.productNameContent}>
@@ -19,20 +18,16 @@ const ProductCard = ({ products, storeName }: ProductCardModel) => {
           {products.name}
         </Text>
         <View style={styles.productPriceBadge}>
-          <Text style={styles.productPriceText}>
-            {latest ? formatPrice(latest.price) : "No price"}
-          </Text>
+          <Text style={styles.productPriceText}>{formatPrice(products.price)}</Text>
         </View>
       </View>
 
-      {storeName ? (
-        <View style={styles.productStoreBelongContent}>
-          <Store color={"#56675C"} size={16} />
-          <Text style={styles.productStoreBelongText} numberOfLines={1} ellipsizeMode="tail">
-            {storeName}
-          </Text>
-        </View>
-      ) : null}
+      <View style={styles.productStoreBelongContent}>
+        <Store color={"#56675C"} size={16} />
+        <Text style={styles.productStoreBelongText} numberOfLines={1} ellipsizeMode="tail">
+          {findTargetTindahan?.name}
+        </Text>
+      </View>
 
       <View style={styles.productCategoryBadge}>
         <Text style={styles.productCategoryText}>{products.category}</Text>
@@ -51,7 +46,7 @@ const ProductCard = ({ products, storeName }: ProductCardModel) => {
             <ShoppingCart color={"#006134"} />
           </Pressable>
           <Pressable style={styles.productButtons}>
-            <Eye color={"#006134"} />
+            <Scale color={"#006134"} />
           </Pressable>
           <Pressable style={styles.productButtons}>
             <Pencil color={"#006134"} />

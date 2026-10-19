@@ -12,75 +12,77 @@ export type SampleTindahan = {
   facebook: string;
 };
 
+export const tindahan = [
+  {
+    id: "341312334521321",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "341312321345343321",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "34133124543321321",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "341316543623213231",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "34133121231321321",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "341312312123231321",
+    name: "Aling Nena Sari-Sariiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "34131232332131321",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+  {
+    id: "34131213213321",
+    name: "Aling Nena Sari-Sari",
+    category: "Grocery",
+    openTime: "08:00",
+    closeTime: "20:00",
+    facebook: "",
+  },
+];
+
 export default function Store() {
   const category = ["All", "Grocery", "Pharmacy", "Hardware", "Bakery"];
   const [activeCategory, setActiveCategory] = useState("All");
-  const tindahan = [
-    {
-      id: "341312334521321",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "341312321345343321",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "34133124543321321",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "341316543623213231",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "34133121231321321",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "341312312123231321",
-      name: "Aling Nena Sari-Sariiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "34131232332131321",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-    {
-      id: "34131213213321",
-      name: "Aling Nena Sari-Sari",
-      category: "Grocery",
-      openTime: "08:00",
-      closeTime: "20:00",
-      facebook: "",
-    },
-  ];
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
       <View style={styles.container}>
