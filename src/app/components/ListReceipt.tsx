@@ -2,11 +2,72 @@ import { ReceiptText } from "lucide-react-native";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 const receipts = [
-  { id: "REC-000000000001", date: "Oct 19 2026", total: 142 },
-  { id: "REC-000000000002", date: "Oct 20 2026 ", total: 300 },
-  { id: "REC-000000000003", date: "Oct 21 2026", total: 552 },
-];
+  { id: "REC-000000000001", date: "2026-10-19", total: 142 },
+  { id: "REC-000000000002", date: "2026-10-20", total: 300 },
+  { id: "REC-000000000003", date: "2026-10-21", total: 552 },
+].reverse();
+
 const ListReceipt = () => {
+  const now = new Date();
+
+  const thisMonth = now
+    .toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+    })
+    .split("/")
+    .join("-");
+
+  const thisDay = now.toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const thisDayTotalFilter = receipts
+    .filter((r) => {
+      const date = new Date(r.date).toLocaleString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+      console.log(date);
+      return date === thisDay;
+    })
+    .reduce((sub, r) => sub + r.total, 0);
+
+  // const weeklyTotalFilter = () => {
+  //   const startOfWeek = new Date("2026-10-19").getDay();
+
+  //   return startOfWeek;
+  // };
+  // console.log(weeklyTotalFilter());
+  const monthTotalFilter = receipts
+    .filter((r) => {
+      // console.log(r.date);
+      const date = new Date(r.date)
+        .toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+        })
+        .split("/")
+        .join("-");
+      return date === thisMonth;
+    })
+    .reduce((sub, r) => sub + r.total, 0);
+
+  const montlyFilterShowList = receipts.filter((r) => {
+    const date = new Date(r.date)
+      .toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+      })
+      .split("/")
+      .join("-");
+    return date === thisMonth;
+  });
+  // console.log(montlyFilterShowList);
+
   return (
     <View>
       {/*  */}
@@ -17,7 +78,7 @@ const ListReceipt = () => {
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
               Today
             </Text>
-            <Text style={styles.overviewCardPriceText}>₱10</Text>
+            <Text style={styles.overviewCardPriceText}>₱{thisDayTotalFilter}</Text>
           </View>
           <View style={styles.overviewCard}>
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
@@ -29,7 +90,7 @@ const ListReceipt = () => {
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
               This month
             </Text>
-            <Text style={styles.overviewCardPriceText}>₱10</Text>
+            <Text style={styles.overviewCardPriceText}>₱{monthTotalFilter}</Text>
           </View>
         </View>
       </View>
@@ -40,7 +101,7 @@ const ListReceipt = () => {
         <Text style={styles.overviewHeader}>Recent receipts</Text>
         <View style={styles.receiptContainerList}>
           <FlatList
-            data={receipts}
+            data={montlyFilterShowList}
             keyExtractor={(r) => r.id}
             renderItem={({ item }) => (
               <View style={styles.receiptContent}>
