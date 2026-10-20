@@ -1,12 +1,12 @@
 import { ReceiptText } from "lucide-react-native";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
+const receipts = [
+  { id: "REC-000000000001", date: "Oct 19 2026", total: 142 },
+  { id: "REC-000000000002", date: "Oct 20 2026 ", total: 300 },
+  { id: "REC-000000000003", date: "Oct 21 2026", total: 552 },
+];
 const ListReceipt = () => {
-  const receipts = [
-    { id: "REC-000000000001", date: "Oct 19", total: 142 },
-    { id: "REC-000000000002", date: "Oct 18", total: 300 },
-    { id: "REC-000000000003", date: "Oct 17", total: 552 },
-  ];
   return (
     <View>
       {/*  */}

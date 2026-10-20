@@ -1,29 +1,96 @@
 import { ChevronLeft, ChevronRight, ReceiptText } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
+
 type SelectedDateModel = {
   year: string;
   month: string;
   day: string;
 };
+const receipts = [
+  { id: "REC-000000000001", date: "2026-10-19", total: 142 },
+  { id: "REC-000000000002", date: "2026-10-20", total: 300 },
+  { id: "REC-000000000003", date: "2026-10-21", total: 552 },
+];
+
 const CalendarReceiptList = () => {
   const now = new Date();
   const dateNow = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  console.log(dateNow);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState<number>();
-  const convertToMonthYear = new Date(selectedDate).toLocaleDateString("en-US", {
+  const [currentMonth, setCurrentMonth] = useState(dateNow);
+  const [selectedDay, setSelectedDay] = useState(dateNow);
+  const changeMonth = (amount: number) => {
+    const date = new Date(`${currentMonth}T12:00:00`);
+
+    date.setDate(1);
+    date.setMonth(date.getMonth() + amount);
+
+    const newMonth = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0"), "01"].join(
+      "-",
+    );
+    setCurrentMonth(newMonth);
+  };
+
+  const formatDisplayYearMonth = new Date(currentMonth).toLocaleString("en-US", {
     month: "long",
     year: "numeric",
   });
-  useEffect(() => {
-    setSelectedDate(selectedDate);
+
+  const formatMonthName = new Date(currentMonth).toLocaleString("en-US", {
+    month: "long",
   });
+
+  const formatDayNDate = () => {
+    const d = new Date(selectedDay);
+
+    return `${d.toLocaleDateString("en-US", { weekday: "short" })}, ${d.toLocaleDateString("en-US", { month: "short" })} ${d.getDate()} `;
+  };
+
+  // console.log(formatDayNDate());
+  // const formatForCalendar = () => {
+  //   const getMonthNYear = new Date(currentMonth);
+
+  //   const format = `${getMonthNYear.getFullYear}-${getMonthNYear.getMonth() + 1}-${getMonthNYear.getDate()}`;
+  //   return format;
+  // };
+
+  // console.log("for key", formatForCalendar());
+
+  useEffect(() => {
+    // console.log("Current month:", currentMonth);
+  });
+  const key = [{ color: "#E84A8A" }];
+
+  const filteredList = receipts.filter((r) => {
+    const receiptDate = new Date(r.date);
+    const receiptDataFormat = [
+      receiptDate.getFullYear(),
+      String(receiptDate.getMonth() + 1).padStart(2, "0"),
+      String(receiptDate.getDate()).padStart(2, "0"),
+    ].join("-");
+    // console.log("Current Month:", receiptDataFormat);
+    // console.log("ReceiptDate:", receiptDataFormat);
+    // console.log("Data2:", currentMonth);
+
+    return receiptDataFormat === selectedDay;
+  });
+
+  const markedDateReceipt = receipts.map((r) => r.date);
+
+  const markedDates = Object.fromEntries(
+    markedDateReceipt.map((date) => [
+      date,
+      {
+        selectedColor: "#116F46",
+        dots: [{ color: "#1E764F", selectedDotColor: "#ffffff" }],
+      },
+    ]),
+  );
+  console.log("List:", markedDateReceipt);
   return (
     <View style={{ gap: 8 }}>
       <View style={{ flexDirection: "row" }}>
-        <View
+        <Pressable
           style={{
             padding: 12,
             backgroundColor: "white",
@@ -31,15 +98,16 @@ const CalendarReceiptList = () => {
             borderColor: "#D1DBD1",
             borderRadius: 24,
           }}
+          onPress={() => changeMonth(-1)}
         >
           <ChevronLeft />
-        </View>
+        </Pressable>
         <View style={{ flex: 2, justifyContent: "center", alignContent: "center" }}>
           <Text style={{ alignSelf: "center", fontSize: 20, fontWeight: 600 }}>
-            {convertToMonthYear}
+            {formatDisplayYearMonth}
           </Text>
         </View>
-        <View
+        <Pressable
           style={{
             padding: 12,
             backgroundColor: "white",
@@ -47,9 +115,10 @@ const CalendarReceiptList = () => {
             borderColor: "#D1DBD1",
             borderRadius: 24,
           }}
+          onPress={() => changeMonth(1)}
         >
           <ChevronRight />
-        </View>
+        </Pressable>
       </View>
       <View
         style={{
@@ -62,7 +131,7 @@ const CalendarReceiptList = () => {
           borderRadius: 16,
         }}
       >
-        <Text style={{ color: "#77847B", alignSelf: "center" }}>Spend in October</Text>
+        <Text style={{ color: "#77847B", alignSelf: "center" }}>Spend in {formatMonthName}</Text>
         <Text style={{ color: "#147048", fontWeight: 600, fontSize: 20, alignSelf: "center" }}>
           ₱670
         </Text>
@@ -75,21 +144,21 @@ const CalendarReceiptList = () => {
         }}
         hideArrows={true}
         theme={{
-          backgroundColor: "#ffffff",
-          calendarBackground: "#ffffff",
+          // backgroundColor: "#ffffff",
+          // calendarBackground: "#ffffff",
           textSectionTitleColor: "#b6c1cd",
-          textSectionTitleDisabledColor: "#d9e1e8",
+          // textSectionTitleDisabledColor: "#d9e1e8",
           selectedDayBackgroundColor: "#00adf5",
-          selectedDayTextColor: "#ffffff",
-          todayTextColor: "#00adf5",
+          // selectedDayTextColor: "#ffffff",
+          todayTextColor: "#15714A",
           dayTextColor: "black",
-          textDisabledColor: "#d9e1e8",
-          dotColor: "#00adf5",
-          selectedDotColor: "#ffffff",
-          arrowColor: "#15714A",
-          disabledArrowColor: "#d9e1e8",
-          monthTextColor: "blue",
-          indicatorColor: "blue",
+          // textDisabledColor: "#d9e1e8",
+          // dotColor: "#00adf5",
+          // selectedDotColor: "#ffffff",
+          // arrowColor: "#15714A",
+          // disabledArrowColor: "#d9e1e8",
+          // monthTextColor: "blue",
+          // indicatorColor: "blue",
           textDayFontFamily: "roboto",
           textMonthFontFamily: "roboto",
           textDayHeaderFontFamily: "roboto",
@@ -106,13 +175,28 @@ const CalendarReceiptList = () => {
         //   "2012-03-02": { marked: true },
         //   "2012-03-03": { selected: true, marked: true, selectedColor: "blue" },
         // }}
+        markingType="multi-dot"
+        markedDates={{
+          ...markedDates,
+          // "2026-10-06": {
+          //   selected: true,
+          //   selectedColor: "#116F46",
+          //   selectedTextColor: "#FFFFFF",
+          //   dots: key,
+          // },
+          [selectedDay]: {
+            ...markedDates[selectedDay],
+            selected: true,
+            selectedColor: "#116F46",
+            selectedTextColor: "#FFFFFF",
+          },
+        }}
         onDayPress={(day) => {
+          setSelectedDay(day.dateString);
           console.log("selected day", day);
-          setSelectedDate(day.dateString);
-          setSelectedMonth(day.month);
         }}
         onMonthChange={(month) => {
-          console.log("month changed", month);
+          // console.log("month changed", month);
         }}
         hideExtraDays={true}
         enableSwipeMonths={true}
@@ -120,26 +204,35 @@ const CalendarReceiptList = () => {
         // initialDate={'2012-03-01'}
         // initialDate={dateNow}
         // minDate={dateNow}
-        // current={dateNow}
+        // current={"2012-03-01"}
+        // key={formatForCalendar()}
+        key={currentMonth}
+        current={currentMonth}
       />
       <View style={{ gap: 8, marginTop: 8 }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text style={{ fontSize: 18, fontWeight: 700 }}>Thu, Oct 15</Text>
+          <Text style={{ fontSize: 18, fontWeight: 700 }}>{formatDayNDate()}</Text>
           <Text style={{ fontSize: 18, fontWeight: 700, color: "#116F46" }}>₱670</Text>
         </View>
         <View style={styles.receiptContainerList}>
-          <View style={styles.receiptContent}>
-            <View style={styles.receiptIconBg}>
-              <ReceiptText color={"#1E764F"} />
-            </View>
-            <View style={styles.receiptIdTextContent}>
-              <Text style={styles.receiptIdText}>REC-000000000001</Text>
-              <Text style={styles.receiptIdDate}>Oct 19</Text>
-            </View>
-            <View style={styles.receiptTotalPriceContent}>
-              <Text style={styles.receiptTotalPriceText}>₱1200</Text>
-            </View>
-          </View>
+          <FlatList
+            data={filteredList}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.receiptContent}>
+                <View style={styles.receiptIconBg}>
+                  <ReceiptText color={"#1E764F"} />
+                </View>
+                <View style={styles.receiptIdTextContent}>
+                  <Text style={styles.receiptIdText}>{item.id}</Text>
+                  <Text style={styles.receiptIdDate}>{item.date}</Text>
+                </View>
+                <View style={styles.receiptTotalPriceContent}>
+                  <Text style={styles.receiptTotalPriceText}>₱{item.total}</Text>
+                </View>
+              </View>
+            )}
+          />
         </View>
       </View>
     </View>
