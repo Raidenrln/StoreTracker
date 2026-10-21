@@ -4,7 +4,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 const receipts = [
   { id: "REC-000000000001", date: "2026-10-19", total: 142 },
   { id: "REC-000000000002", date: "2026-10-20", total: 300 },
-  { id: "REC-000000000003", date: "2026-10-21", total: 552 },
+  { id: "REC-000000000003", date: "2026-09-21", total: 552 },
 ].reverse();
 
 const ListReceipt = () => {
