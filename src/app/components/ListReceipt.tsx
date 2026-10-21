@@ -31,17 +31,38 @@ const ListReceipt = () => {
         month: "2-digit",
         day: "2-digit",
       });
-      console.log(date);
       return date === thisDay;
     })
     .reduce((sub, r) => sub + r.total, 0);
 
-  // const weeklyTotalFilter = () => {
-  //   const startOfWeek = new Date("2026-10-19").getDay();
+  // Start from a base date (hardcoded to Oct 19, 2026 here)
+  const startOfWeek = new Date(now);
 
-  //   return startOfWeek;
-  // };
-  // console.log(weeklyTotalFilter());
+  // Move back to Monday of the current week:
+  // getDay() is 0 for Sunday ... 6 for Saturday, so (getDay() + 6) % 7
+  // converts it to 0 for Monday ... 6 for Sunday, i.e. days since Monday
+  startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  // Reset the time to local midnight
+  startOfWeek.setHours(0, 0, 0, 0);
+  // console.log(startOfWeek);
+
+  // Start of next week (7 days later), used  as the exclusive upper bound
+  const startOfNextWeek = new Date(startOfWeek);
+  startOfNextWeek.setDate(startOfWeek.getDate() + 7);
+  // console.log(startOfNextWeek);
+  // Sum the totals of all receip ts that fall within this week
+  const weekTotalFilter = receipts
+    // Keep only receipts dated within [startOfWeek, startOfNextWeek)
+    .filter((r) => {
+      // Parse the receipt date as local midnight so it compares correctly
+      const date = new Date(`${r.date}T00:00:00`);
+      return date >= startOfWeek && date < startOfNextWeek;
+    })
+    // Add up the totals, starting from 0
+    .reduce((sub, r) => sub + r.total, 0);
+
+  // console.log(weekTotalFilter);
+
   const monthTotalFilter = receipts
     .filter((r) => {
       // console.log(r.date);
@@ -84,7 +105,7 @@ const ListReceipt = () => {
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
               This week
             </Text>
-            <Text style={styles.overviewCardPriceText}>₱10</Text>
+            <Text style={styles.overviewCardPriceText}>₱{weekTotalFilter}</Text>
           </View>
           <View style={styles.overviewCard}>
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>

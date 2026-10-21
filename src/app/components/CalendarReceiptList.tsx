@@ -29,6 +29,7 @@ const CalendarReceiptList = () => {
       "-",
     );
     setCurrentMonth(newMonth);
+    console.log(currentMonth);
   };
 
   const formatDisplayYearMonth = new Date(currentMonth).toLocaleString("en-US", {
@@ -75,7 +76,27 @@ const CalendarReceiptList = () => {
     return receiptDataFormat === selectedDay;
   });
 
+  const filteredTotalList = filteredList.reduce((sub, r) => sub + r.total, 0);
+
   const markedDateReceipt = receipts.map((r) => r.date);
+
+  const filteredMonthlyTotal = receipts
+    .filter((r) => {
+      const rDate = new Date(r.date);
+      const monthNow = new Date(currentMonth);
+
+      const monthNowFormat = [
+        monthNow.getFullYear(),
+        String(monthNow.getMonth() + 1).padStart(2, "0"),
+      ].join("-");
+
+      const rDateFormat = [rDate.getFullYear(), String(rDate.getMonth() + 1).padStart(2, "0")].join(
+        "-",
+      );
+
+      return rDateFormat === monthNowFormat;
+    })
+    .reduce((sub, r) => sub + r.total, 0);
 
   const markedDates = Object.fromEntries(
     markedDateReceipt.map((date) => [
@@ -133,7 +154,7 @@ const CalendarReceiptList = () => {
       >
         <Text style={{ color: "#77847B", alignSelf: "center" }}>Spend in {formatMonthName}</Text>
         <Text style={{ color: "#147048", fontWeight: 600, fontSize: 20, alignSelf: "center" }}>
-          ₱670
+          ₱{filteredMonthlyTotal}
         </Text>
       </View>
       <Calendar
@@ -212,7 +233,9 @@ const CalendarReceiptList = () => {
       <View style={{ gap: 8, marginTop: 8 }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <Text style={{ fontSize: 18, fontWeight: 700 }}>{formatDayNDate()}</Text>
-          <Text style={{ fontSize: 18, fontWeight: 700, color: "#116F46" }}>₱670</Text>
+          <Text style={{ fontSize: 18, fontWeight: 700, color: "#116F46" }}>
+            ₱{filteredTotalList}
+          </Text>
         </View>
         <View style={styles.receiptContainerList}>
           <FlatList
