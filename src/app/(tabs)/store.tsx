@@ -77,13 +77,19 @@ export default function Store() {
   const category = ["All", "Grocery", "Pharmacy", "Hardware", "Bakery"];
   const [activeCategory, setActiveCategory] = useState("All");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [searchStore, setSearchStore] = useState("");
   const { stores } = useStore();
+  const filteredStore = stores.filter((s) => {
+    const matchesCategory = activeCategory === "All" || s.category === activeCategory;
+    const matchesSearch = s.name.toLowerCase().includes(searchStore.trim().toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
   return (
     <SafeAreaView style={{ flex: 1, position: "relative" }} edges={["top"]}>
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Stores Tracked</Text>
+            <Text style={styles.title}>Stores</Text>
 
             <View style={{ flexDirection: "row", alignContent: "center", gap: 16 }}>
               <Pressable
@@ -107,7 +113,12 @@ export default function Store() {
           {/* Search input content */}
           <View style={styles.searchContent}>
             <Search size={20} style={styles.searchIcon} />
-            <TextInput style={styles.searchInput} placeholder="Search stores" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search stores"
+              value={searchStore}
+              onChangeText={setSearchStore}
+            />
           </View>
           {/*  */}
           <ScrollView
@@ -135,11 +146,12 @@ export default function Store() {
           {/* Store List content */}
           <View style={styles.storeListContent}>
             <FlatList
-              data={stores}
+              data={filteredStore}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => <StoreCard stores={item} />}
               contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
+              ListEmptyComponent={<Text>No stores found.</Text>}
             />
           </View>
         </View>

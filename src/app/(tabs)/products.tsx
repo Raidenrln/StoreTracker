@@ -26,7 +26,7 @@ export default function Products() {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Products Tracked</Text>
+            <Text style={styles.title}>Products</Text>
             <View style={{ flexDirection: "row", alignContent: "center", gap: 16 }}>
               <Pressable
                 style={{

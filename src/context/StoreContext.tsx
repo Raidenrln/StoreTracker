@@ -1,4 +1,7 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+
+const STORES_STORAGE_KEY = "@storetracker/stores";
 
 export type StoreDataModel = {
   id: string;
@@ -20,12 +23,42 @@ export const StoreContext = createContext<StoreContextModel | null>(null);
 
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [stores, setStores] = useState<StoreDataModel[]>([]);
+  const [storageLoaded, setStorageLoaded] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadStores = async () => {
+      try {
+        const savedStores = await AsyncStorage.getItem(STORES_STORAGE_KEY);
+        if (active && savedStores) {
+          const parsed: unknown = JSON.parse(savedStores);
+          if (Array.isArray(parsed)) setStores(parsed as StoreDataModel[]);
+        }
+      } catch (error) {
+        console.warn("Could not load saved stores", error);
+      } finally {
+        if (active) setStorageLoaded(true);
+      }
+    };
+
+    void loadStores();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!storageLoaded) return;
+
+    AsyncStorage.setItem(STORES_STORAGE_KEY, JSON.stringify(stores)).catch((error) => {
+      console.warn("Could not save stores", error);
+    });
+  }, [stores, storageLoaded]);
 
   const addingNewStore = (store: StoreDataModel) => {
     setStores((prev) => [...prev, store]);
   };
-  console.log(stores);
-
   return (
     <StoreContext.Provider value={{ stores, addingNewStore }}>{children}</StoreContext.Provider>
   );

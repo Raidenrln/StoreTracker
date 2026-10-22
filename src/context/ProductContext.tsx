@@ -1,4 +1,7 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+
+const PRODUCTS_STORAGE_KEY = "@storetracker/products";
 
 export type PriceHistoryModel = {
   previousPrice: number;
@@ -27,6 +30,38 @@ export const ProductContext = createContext<ProductContextModel | null>(null);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<ProductDataModel[]>([]);
+  const [storageLoaded, setStorageLoaded] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProducts = async () => {
+      try {
+        const savedProducts = await AsyncStorage.getItem(PRODUCTS_STORAGE_KEY);
+        if (active && savedProducts) {
+          const parsed: unknown = JSON.parse(savedProducts);
+          if (Array.isArray(parsed)) setProducts(parsed as ProductDataModel[]);
+        }
+      } catch (error) {
+        console.warn("Could not load saved products", error);
+      } finally {
+        if (active) setStorageLoaded(true);
+      }
+    };
+
+    void loadProducts();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!storageLoaded) return;
+
+    AsyncStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products)).catch((error) => {
+      console.warn("Could not save products", error);
+    });
+  }, [products, storageLoaded]);
 
   const addProduct = (newProduct: ProductDataModel) => {
     setProducts((prev) => [...prev, newProduct]);

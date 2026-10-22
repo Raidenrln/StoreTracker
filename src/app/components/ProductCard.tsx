@@ -1,3 +1,4 @@
+import { useCart } from "@/context/CartContext";
 import { ProductDataModel } from "@/context/ProductContext";
 import { useStore } from "@/context/StoreContext";
 import { Pencil, Scale, ShoppingCart, Store, Tag, Trash } from "lucide-react-native";
@@ -11,6 +12,7 @@ const formatPrice = (price: number) => `₱${price.toFixed(2)}`;
 
 const ProductCard = ({ product }: ProductCardModel) => {
   const { stores } = useStore();
+  const { addToCart } = useCart();
   const findTargetTindahan = stores.find((t) => t.id === product.storeBelong);
   return (
     <View style={styles.content}>
@@ -43,7 +45,12 @@ const ProductCard = ({ product }: ProductCardModel) => {
         </View>
 
         <View style={styles.productButtonsContent}>
-          <Pressable style={styles.productButtons}>
+          <Pressable
+            style={styles.productButtons}
+            onPress={() =>
+              addToCart({ id: product.id, quantity: 0, storeBelong: product.storeBelong })
+            }
+          >
             <ShoppingCart color={"#006134"} />
           </Pressable>
           <Pressable style={styles.productButtons}>
