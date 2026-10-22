@@ -1,16 +1,10 @@
-import { Search, SunDim } from "lucide-react-native";
+import { useStore } from "@/context/StoreContext";
+import { Plus, Search, Settings } from "lucide-react-native";
 import { useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import StoreCard from "../components/StoreCard";
-export type SampleTindahan = {
-  id: string;
-  name: string;
-  category: string;
-  openTime: string;
-  closeTime: string;
-  facebook: string;
-};
+import AddingStore from "../components/modals/AddingStore";
 
 export const tindahan = [
   {
@@ -82,16 +76,33 @@ export const tindahan = [
 export default function Store() {
   const category = ["All", "Grocery", "Pharmacy", "Hardware", "Bakery"];
   const [activeCategory, setActiveCategory] = useState("All");
-
+  const [showAddModal, setShowAddModal] = useState(false);
+  const { stores } = useStore();
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, position: "relative" }} edges={["top"]}>
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>Stores Tracked</Text>
-            <Pressable>
-              <SunDim size={36} />
-            </Pressable>
+
+            <View style={{ flexDirection: "row", alignContent: "center", gap: 16 }}>
+              <Pressable
+                style={{
+                  backgroundColor: "#15714A",
+                  width: 48,
+                  height: 48,
+                  borderRadius: "100%",
+                  alignContent: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => setShowAddModal(true)}
+              >
+                <Plus color={"white"} style={{ alignSelf: "center" }} size={32} />
+              </Pressable>
+              <Pressable style={{ alignSelf: "center" }}>
+                <Settings size={36} />
+              </Pressable>
+            </View>
           </View>
           {/* Search input content */}
           <View style={styles.searchContent}>
@@ -124,7 +135,7 @@ export default function Store() {
           {/* Store List content */}
           <View style={styles.storeListContent}>
             <FlatList
-              data={tindahan}
+              data={stores}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => <StoreCard stores={item} />}
               contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
@@ -133,6 +144,7 @@ export default function Store() {
           </View>
         </View>
       </View>
+      {showAddModal && <AddingStore onClose={setShowAddModal} />}
     </SafeAreaView>
   );
 }

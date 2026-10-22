@@ -1,52 +1,21 @@
-import { Search, SunDim } from "lucide-react-native";
+import { useProduct } from "@/context/ProductContext";
+import { Plus, Search, Settings } from "lucide-react-native";
 import { useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AddingProduct from "../components/modals/AddingProduct";
 import ProductCard from "../components/ProductCard";
-
-export type PriceEntry = {
-  price: number;
-  date: string;
-};
-
-export type SampleProdukto = {
-  id: string;
-  name: string;
-  price: number;
-  category: string;
-  storeBelong: string;
-  priceHistory: PriceEntry[];
-  unit: string;
-};
-
-const produkto: SampleProdukto[] = [
-  {
-    id: "123213212313",
-    name: "Nescafe Creamy White",
-    price: 16,
-    category: "Coffee",
-    storeBelong: "341312334521321",
-    priceHistory: [],
-    unit: "per piece",
-  },
-  {
-    id: "123213212314",
-    name: "Coke Mismo",
-    price: 20,
-    category: "Drinks",
-    storeBelong: "341312334521321",
-    priceHistory: [],
-    unit: "per perpice",
-  },
-];
 
 const categories = ["All", "Coffee", "Drinks", "Junk Food", "Bread"];
 
 export default function Products() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  const filteredProducts = produkto.filter((item) => {
+  const { products } = useProduct();
+
+  const filteredProducts = products.filter((item) => {
     const matchesCategory = activeCategory === "All" || item.category === activeCategory;
     const matchesSearch = item.name.toLowerCase().includes(search.trim().toLowerCase());
     return matchesCategory && matchesSearch;
@@ -58,9 +27,24 @@ export default function Products() {
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>Products Tracked</Text>
-            <Pressable>
-              <SunDim size={36} />
-            </Pressable>
+            <View style={{ flexDirection: "row", alignContent: "center", gap: 16 }}>
+              <Pressable
+                style={{
+                  backgroundColor: "#15714A",
+                  width: 48,
+                  height: 48,
+                  borderRadius: "100%",
+                  alignContent: "center",
+                  justifyContent: "center",
+                }}
+                onPress={() => setShowAddModal(true)}
+              >
+                <Plus color={"white"} style={{ alignSelf: "center" }} size={32} />
+              </Pressable>
+              <Pressable style={{ alignSelf: "center" }}>
+                <Settings size={36} />
+              </Pressable>
+            </View>
           </View>
 
           {/* Search input content */}
@@ -97,7 +81,7 @@ export default function Products() {
             <FlatList
               data={filteredProducts}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <ProductCard products={item} />}
+              renderItem={({ item }) => <ProductCard product={item} />}
               contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={<Text>No products found.</Text>}
@@ -105,6 +89,7 @@ export default function Products() {
           </View>
         </View>
       </View>
+      {showAddModal && <AddingProduct onClose={setShowAddModal} />}
     </SafeAreaView>
   );
 }

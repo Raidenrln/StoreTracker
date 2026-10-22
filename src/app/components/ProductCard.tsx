@@ -1,24 +1,25 @@
+import { ProductDataModel } from "@/context/ProductContext";
+import { useStore } from "@/context/StoreContext";
 import { Pencil, Scale, ShoppingCart, Store, Tag, Trash } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SampleProdukto } from "../(tabs)/products";
-import { tindahan } from "../(tabs)/store";
 
 interface ProductCardModel {
-  products: SampleProdukto;
+  product: ProductDataModel;
 }
 
 const formatPrice = (price: number) => `₱${price.toFixed(2)}`;
 
-const ProductCard = ({ products }: ProductCardModel) => {
-  const findTargetTindahan = tindahan.find((t) => t.id === products.storeBelong);
+const ProductCard = ({ product }: ProductCardModel) => {
+  const { stores } = useStore();
+  const findTargetTindahan = stores.find((t) => t.id === product.storeBelong);
   return (
     <View style={styles.content}>
       <View style={styles.productNameContent}>
         <Text style={styles.productName} ellipsizeMode="tail" numberOfLines={1}>
-          {products.name}
+          {product.name}
         </Text>
         <View style={styles.productPriceBadge}>
-          <Text style={styles.productPriceText}>{formatPrice(products.price)}</Text>
+          <Text style={styles.productPriceText}>{formatPrice(product.price)}</Text>
         </View>
       </View>
 
@@ -30,14 +31,14 @@ const ProductCard = ({ products }: ProductCardModel) => {
       </View>
 
       <View style={styles.productCategoryBadge}>
-        <Text style={styles.productCategoryText}>{products.category}</Text>
+        <Text style={styles.productCategoryText}>{product.category}</Text>
       </View>
 
       <View style={styles.productBottomContent}>
         <View style={styles.productUnitContent}>
           <Tag color={"#56675C"} size={16} />
           <Text style={styles.productUnitText} numberOfLines={1}>
-            {products.unit}
+            {product.unit}
           </Text>
         </View>
 

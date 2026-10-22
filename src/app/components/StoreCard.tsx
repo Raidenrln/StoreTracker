@@ -1,9 +1,9 @@
+import { StoreDataModel } from "@/context/StoreContext";
 import { Clock, Eye, Pencil, Trash } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { SampleTindahan } from "../(tabs)/store";
 
 interface StoreCardModel {
-  stores: SampleTindahan;
+  stores: StoreDataModel;
 }
 
 const StoreCard = ({ stores }: StoreCardModel) => {
