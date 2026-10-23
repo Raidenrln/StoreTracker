@@ -1,6 +1,7 @@
 import { SunDim } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 const Dashboard = () => {
   const now = new Date();
   const dateFormat = now.toLocaleString("en-US", {

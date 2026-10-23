@@ -23,7 +23,7 @@ export type ProductDataModel = {
 
 interface ProductContextModel {
   products: ProductDataModel[];
-  addProduct: (newProduct: ProductDataModel) => void;
+  addProduct: (product: ProductDataModel) => void;
 }
 
 export const ProductContext = createContext<ProductContextModel | null>(null);
@@ -33,25 +33,27 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [storageLoaded, setStorageLoaded] = useState(false);
 
   useEffect(() => {
-    let active = true;
+    let isMounted = true;
 
     const loadProducts = async () => {
       try {
         const savedProducts = await AsyncStorage.getItem(PRODUCTS_STORAGE_KEY);
-        if (active && savedProducts) {
-          const parsed: unknown = JSON.parse(savedProducts);
-          if (Array.isArray(parsed)) setProducts(parsed as ProductDataModel[]);
+        if (!savedProducts) return;
+
+        const parsedProducts: unknown = JSON.parse(savedProducts);
+        if (isMounted && Array.isArray(parsedProducts)) {
+          setProducts(parsedProducts as ProductDataModel[]);
         }
       } catch (error) {
         console.warn("Could not load saved products", error);
       } finally {
-        if (active) setStorageLoaded(true);
+        if (isMounted) setStorageLoaded(true);
       }
     };
 
     void loadProducts();
     return () => {
-      active = false;
+      isMounted = false;
     };
   }, []);
 
@@ -63,17 +65,19 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     });
   }, [products, storageLoaded]);
 
-  const addProduct = (newProduct: ProductDataModel) => {
-    setProducts((prev) => [...prev, newProduct]);
+  const addProduct = (product: ProductDataModel) => {
+    setProducts((currentProducts) => [...currentProducts, product]);
   };
-  return <ProductContext value={{ products, addProduct }}>{children}</ProductContext>;
+
+  return (
+    <ProductContext.Provider value={{ products, addProduct }}>{children}</ProductContext.Provider>
+  );
 };
 
 export const useProduct = () => {
-  const useProductContext = useContext(ProductContext);
-
-  if (!useProductContext) {
-    throw new Error("useProduct must be used within a ProductProvider");
+  const productContext = useContext(ProductContext);
+  if (!productContext) {
+    throw new Error("useProduct must be used inside of ProductProvider.");
   }
-  return useProductContext;
+  return productContext;
 };

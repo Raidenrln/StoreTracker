@@ -1,15 +1,16 @@
+import { useReceipt } from "@/context/ReceiptContext";
 import { ReceiptText } from "lucide-react-native";
-import { FlatList, StyleSheet, Text, View } from "react-native";
-
-const receipts = [
-  { id: "REC-000000000001", date: "2026-10-19", total: 142 },
-  { id: "REC-000000000002", date: "2026-10-20", total: 300 },
-  { id: "REC-000000000003", date: "2026-09-21", total: 552 },
-].reverse();
+import { useState } from "react";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import ReceiptModal, { ReceiptDetails } from "./modals/ReceiptModal";
 
 const ListReceipt = () => {
   const now = new Date();
-
+  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptDetails | null>(null);
+  const { receipt } = useReceipt();
+  // useEffect(() => {
+  //   console.log(receipt);
+  // });
   const thisMonth = now
     .toLocaleString("en-US", {
       year: "numeric",
@@ -24,9 +25,9 @@ const ListReceipt = () => {
     day: "2-digit",
   });
 
-  const thisDayTotalFilter = receipts
+  const thisDayTotalFilter = receipt
     .filter((r) => {
-      const date = new Date(r.date).toLocaleString("en-US", {
+      const date = new Date(r.dateCreated).toLocaleString("en-US", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -51,11 +52,11 @@ const ListReceipt = () => {
   startOfNextWeek.setDate(startOfWeek.getDate() + 7);
   // console.log(startOfNextWeek);
   // Sum the totals of all receip ts that fall within this week
-  const weekTotalFilter = receipts
+  const weekTotalFilter = receipt
     // Keep only receipts dated within [startOfWeek, startOfNextWeek)
     .filter((r) => {
       // Parse the receipt date as local midnight so it compares correctly
-      const date = new Date(`${r.date}T00:00:00`);
+      const date = new Date(r.dateCreated);
       return date >= startOfWeek && date < startOfNextWeek;
     })
     // Add up the totals, starting from 0
@@ -63,10 +64,10 @@ const ListReceipt = () => {
 
   // console.log(weekTotalFilter);
 
-  const monthTotalFilter = receipts
+  const monthTotalFilter = receipt
     .filter((r) => {
       // console.log(r.date);
-      const date = new Date(r.date)
+      const date = new Date(r.dateCreated)
         .toLocaleString("en-US", {
           year: "numeric",
           month: "2-digit",
@@ -77,8 +78,8 @@ const ListReceipt = () => {
     })
     .reduce((sub, r) => sub + r.total, 0);
 
-  const montlyFilterShowList = receipts.filter((r) => {
-    const date = new Date(r.date)
+  const montlyFilterShowList = receipt.filter((r) => {
+    const date = new Date(r.dateCreated)
       .toLocaleDateString("en-US", {
         year: "numeric",
         month: "2-digit",
@@ -88,9 +89,55 @@ const ListReceipt = () => {
     return date === thisMonth;
   });
   // console.log(montlyFilterShowList);
+  const formatDateList = (d: string) => {
+    const dateFromList = new Date(d);
+    const format = [
+      dateFromList.getFullYear(),
+      String(dateFromList.getMonth() + 1).padStart(2, "0"),
+      String(dateFromList.getDate()).padStart(2, "0"),
+    ].join("-");
+
+    return format;
+  };
+
+  const handlePressReceipt = (item: any) => {
+    // Safely calculate total items
+    const totalItems =
+      item.products?.reduce((sum: number, p: any) => sum + (p.quantity || 1), 0) || 0;
+
+    // Group products by store
+    const storeGroups: Record<string, any[]> = {};
+    if (item.products) {
+      item.products.forEach((p: any) => {
+        const storeName = p.storeName || p.store || "Unknown Store";
+        if (!storeGroups[storeName]) storeGroups[storeName] = [];
+        storeGroups[storeName].push({
+          name: p.name || "Item",
+          price: p.price || 0,
+        });
+      });
+    }
+
+    const stores = Object.keys(storeGroups).map((storeName) => ({
+      storeName,
+      items: storeGroups[storeName],
+    }));
+
+    setSelectedReceipt({
+      id: item.id,
+      date: new Date(item.dateCreated).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      totalItems,
+      totalPrice: item.total,
+      stores,
+    });
+  };
 
   return (
-    <View>
+    <View style={styles.container}>
       {/*  */}
       <View style={styles.overview}>
         <Text style={styles.overviewHeader}>Spending overview</Text>
@@ -124,30 +171,49 @@ const ListReceipt = () => {
           <FlatList
             data={montlyFilterShowList}
             keyExtractor={(r) => r.id}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+            contentInsetAdjustmentBehavior="never"
+            contentContainerStyle={styles.receiptListContent}
             renderItem={({ item }) => (
-              <View style={styles.receiptContent}>
+              <TouchableOpacity
+                style={styles.receiptContent}
+                onPress={() => handlePressReceipt(item)}
+              >
                 <View style={styles.receiptIconBg}>
                   <ReceiptText color={"#1E764F"} />
                 </View>
                 <View style={styles.receiptIdTextContent}>
                   <Text style={styles.receiptIdText}>{item.id}</Text>
-                  <Text style={styles.receiptIdDate}>{item.date}</Text>
+                  <Text style={styles.receiptIdDate}>{formatDateList(item.dateCreated)}</Text>
                 </View>
                 <View style={styles.receiptTotalPriceContent}>
                   <Text style={styles.receiptTotalPriceText}>₱{item.total}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
             ItemSeparatorComponent={() => <View style={styles.receiptDivider} />}
-            style={{ gap: 16 }}
+            style={styles.receiptList}
           />
         </View>
       </View>
+      <ReceiptModal
+        visible={!!selectedReceipt}
+        receipt={selectedReceipt}
+        onClose={() => setSelectedReceipt(null)}
+        onDelete={() => {
+          console.log("Delete receipt", selectedReceipt?.id);
+          setSelectedReceipt(null);
+        }}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   overview: {
     gap: 8,
   },
@@ -187,11 +253,22 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   receiptContainer: {
+    flex: 1,
     gap: 8,
+    marginBottom: 16,
   },
   receiptContainerList: {
+    flex: 1,
     backgroundColor: "white",
     borderRadius: 12,
+    overflow: "hidden",
+  },
+  receiptList: {
+    flex: 1,
+  },
+  receiptListContent: {
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   receiptContent: {
     alignContent: "center",

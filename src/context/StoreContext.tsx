@@ -26,25 +26,27 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const [storageLoaded, setStorageLoaded] = useState(false);
 
   useEffect(() => {
-    let active = true;
+    let isMounted = true;
 
     const loadStores = async () => {
       try {
         const savedStores = await AsyncStorage.getItem(STORES_STORAGE_KEY);
-        if (active && savedStores) {
-          const parsed: unknown = JSON.parse(savedStores);
-          if (Array.isArray(parsed)) setStores(parsed as StoreDataModel[]);
+        if (!savedStores) return;
+
+        const parsedStores: unknown = JSON.parse(savedStores);
+        if (isMounted && Array.isArray(parsedStores)) {
+          setStores(parsedStores as StoreDataModel[]);
         }
       } catch (error) {
         console.warn("Could not load saved stores", error);
       } finally {
-        if (active) setStorageLoaded(true);
+        if (isMounted) setStorageLoaded(true);
       }
     };
 
     void loadStores();
     return () => {
-      active = false;
+      isMounted = false;
     };
   }, []);
 
@@ -57,8 +59,9 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   }, [stores, storageLoaded]);
 
   const addingNewStore = (store: StoreDataModel) => {
-    setStores((prev) => [...prev, store]);
+    setStores((currentStores) => [...currentStores, store]);
   };
+
   return (
     <StoreContext.Provider value={{ stores, addingNewStore }}>{children}</StoreContext.Provider>
   );
@@ -66,9 +69,8 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 
 export const useStore = () => {
   const storeContext = useContext(StoreContext);
-
   if (!storeContext) {
-    throw new Error("useStore must be used within a StoreProvider");
+    throw new Error("useStore must be used inside of StoreProvider.");
   }
   return storeContext;
 };

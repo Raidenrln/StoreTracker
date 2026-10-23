@@ -1,24 +1,36 @@
+import { useReceipt } from "@/context/ReceiptContext";
 import { ChevronLeft, ChevronRight, ReceiptText } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
+import ReceiptModal, { ReceiptDetails } from "./modals/ReceiptModal";
 
 type SelectedDateModel = {
   year: string;
   month: string;
   day: string;
 };
-const receipts = [
-  { id: "REC-000000000001", date: "2026-10-19", total: 142 },
-  { id: "REC-000000000002", date: "2026-10-20", total: 300 },
-  { id: "REC-000000000003", date: "2026-09-21", total: 552 },
-];
+// const receipts = [
+//   { id: "REC-000000000001", date: "2026-10-19", total: 142 },
+//   { id: "REC-000000000002", date: "2026-10-20", total: 300 },
+//   { id: "REC-000000000003", date: "2026-09-21", total: 552 },
+// ];
 
 const CalendarReceiptList = () => {
   const now = new Date();
   const dateNow = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const [currentMonth, setCurrentMonth] = useState(dateNow);
   const [selectedDay, setSelectedDay] = useState(dateNow);
+  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptDetails | null>(null);
+  const { receipt } = useReceipt();
   const changeMonth = (amount: number) => {
     const date = new Date(`${currentMonth}T12:00:00`);
 
@@ -62,8 +74,8 @@ const CalendarReceiptList = () => {
   });
   const key = [{ color: "#E84A8A" }];
 
-  const filteredList = receipts.filter((r) => {
-    const receiptDate = new Date(r.date);
+  const filteredList = receipt.filter((r) => {
+    const receiptDate = new Date(r.dateCreated);
     const receiptDataFormat = [
       receiptDate.getFullYear(),
       String(receiptDate.getMonth() + 1).padStart(2, "0"),
@@ -78,11 +90,20 @@ const CalendarReceiptList = () => {
 
   const filteredTotalList = filteredList.reduce((sub, r) => sub + r.total, 0);
 
-  const markedDateReceipt = receipts.map((r) => r.date);
+  const formatDateForCalendar = (d: string) => {
+    const formatDate = new Date(d);
+    return [
+      formatDate.getFullYear(),
+      String(formatDate.getMonth() + 1).padStart(2, "0"),
+      String(formatDate.getDate()).padStart(2, "0"),
+    ].join("-");
+  };
 
-  const filteredMonthlyTotal = receipts
+  const markedDateReceipt = receipt.map((r) => formatDateForCalendar(r.dateCreated));
+
+  const filteredMonthlyTotal = receipt
     .filter((r) => {
-      const rDate = new Date(r.date);
+      const rDate = new Date(r.dateCreated);
       const monthNow = new Date(currentMonth);
 
       const monthNowFormat = [
@@ -108,8 +129,48 @@ const CalendarReceiptList = () => {
     ]),
   );
   console.log("List:", markedDateReceipt);
+
+  const handlePressReceipt = (item: any) => {
+    const totalItems =
+      item.products?.reduce((sum: number, p: any) => sum + (p.quantity || 1), 0) || 0;
+
+    const storeGroups: Record<string, any[]> = {};
+    if (item.products) {
+      item.products.forEach((p: any) => {
+        const storeName = p.storeName || p.store || "Unknown Store";
+        if (!storeGroups[storeName]) storeGroups[storeName] = [];
+        storeGroups[storeName].push({
+          name: p.name || "Item",
+          price: p.price || 0,
+        });
+      });
+    }
+
+    const stores = Object.keys(storeGroups).map((storeName) => ({
+      storeName,
+      items: storeGroups[storeName],
+    }));
+
+    setSelectedReceipt({
+      id: item.id,
+      date: new Date(item.dateCreated).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
+      totalItems,
+      totalPrice: item.total,
+      stores,
+    });
+  };
+
   return (
-    <View style={{ gap: 8 }}>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+    >
       <View style={{ flexDirection: "row" }}>
         <Pressable
           style={{
@@ -159,8 +220,9 @@ const CalendarReceiptList = () => {
       </View>
       <Calendar
         style={{
-          borderColor: "gray",
-          borderRadius: 16,
+          height: 285,
+          backgroundColor: "white",
+          borderRadius: 20,
           overflow: "hidden",
         }}
         hideArrows={true}
@@ -186,7 +248,8 @@ const CalendarReceiptList = () => {
           textDayFontWeight: "300",
           textMonthFontWeight: "bold",
           textDayHeaderFontWeight: "300",
-          textDayFontSize: 14,
+          textDayFontSize: 16,
+          weekVerticalMargin: 8,
           textMonthFontSize: 16,
           textDayHeaderFontSize: 14,
         }}
@@ -239,36 +302,95 @@ const CalendarReceiptList = () => {
         </View>
         <View style={styles.receiptContainerList}>
           <FlatList
+            scrollEnabled={false}
             data={filteredList}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.receiptContent}>
-                <View style={styles.receiptIconBg}>
-                  <ReceiptText color={"#1E764F"} />
+            ListEmptyComponent={
+              <View style={styles.emptyReceiptState}>
+                <View style={styles.emptyReceiptIcon}>
+                  <ReceiptText color="#1E764F" />
                 </View>
-                <View style={styles.receiptIdTextContent}>
-                  <Text style={styles.receiptIdText}>{item.id}</Text>
-                  <Text style={styles.receiptIdDate}>{item.date}</Text>
-                </View>
-                <View style={styles.receiptTotalPriceContent}>
-                  <Text style={styles.receiptTotalPriceText}>₱{item.total}</Text>
-                </View>
+                <Text style={styles.emptyReceiptTitle}>No receipts for this date</Text>
+                <Text style={styles.emptyReceiptMessage}>
+                  Choose another day or save a receipt for this date.
+                </Text>
               </View>
-            )}
+            }
+            renderItem={({ item }) => {
+              const itemCount =
+                item.products?.reduce(
+                  (total: number, product: any) => total + (product.quantity || 1),
+                  0,
+                ) || 0;
+
+              return (
+                <TouchableOpacity
+                  style={styles.receiptContent}
+                  onPress={() => handlePressReceipt(item)}
+                >
+                  <View style={styles.receiptIconBg}>
+                    <ReceiptText color={"#1E764F"} />
+                  </View>
+                  <View style={styles.receiptIdTextContent}>
+                    <Text style={styles.receiptIdText}>{item.id}</Text>
+                    <Text style={styles.receiptIdDate}>
+                      {itemCount} {itemCount === 1 ? "item" : "items"}
+                    </Text>
+                  </View>
+                  <View style={styles.receiptTotalPriceContent}>
+                    <Text style={styles.receiptTotalPriceText}>₱{item.total}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
           />
         </View>
       </View>
-    </View>
+
+      <ReceiptModal
+        visible={!!selectedReceipt}
+        receipt={selectedReceipt}
+        onClose={() => setSelectedReceipt(null)}
+        onDelete={() => {
+          console.log("Delete receipt", selectedReceipt?.id);
+          setSelectedReceipt(null);
+        }}
+      />
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
   receiptContainerList: {
     backgroundColor: "white",
-    borderRadius: 12,
+    borderRadius: 18,
+    padding: 8,
+  },
+  emptyReceiptState: {
+    alignItems: "center",
+    padding: 20,
+    gap: 8,
+  },
+  emptyReceiptIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#E6EEE7",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyReceiptTitle: {
+    color: "#1C3027",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  emptyReceiptMessage: {
+    color: "#718078",
+    fontSize: 14,
+    textAlign: "center",
   },
   receiptContent: {
-    alignContent: "center",
-    padding: 8,
+    alignItems: "center",
+    padding: 10,
     flexDirection: "row",
     gap: 8,
   },

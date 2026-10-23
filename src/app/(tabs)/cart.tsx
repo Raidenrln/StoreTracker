@@ -1,8 +1,9 @@
 import { useCart } from "@/context/CartContext";
 import { useProduct } from "@/context/ProductContext";
+import { useReceipt } from "@/context/ReceiptContext";
 import { useStore } from "@/context/StoreContext";
 import { SunDim } from "lucide-react-native";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const formatCurrency = (amount: number) =>
@@ -12,7 +13,7 @@ const Cart = () => {
   const { stores } = useStore();
   const { products } = useProduct();
   const { cart, updateQuantity, clearCart } = useCart();
-
+  const { receipt, addingNewReceipt } = useReceipt();
   const groupedCart = stores
     .map((store) => {
       const items = cart
@@ -34,7 +35,39 @@ const Cart = () => {
   }, 0);
 
   const handleCheckout = () => {
-    Alert.alert("Checkout", "Receipt saving is not connected yet.");
+    // Continue after the largest existing REC number to avoid duplicate IDs.
+    const lastReceiptNumber = receipt.reduce((largestNumber, savedReceipt) => {
+      const match = savedReceipt.id.match(/^REC-(\d+)$/);
+      const receiptNumber = match ? Number(match[1]) : 0;
+      return Math.max(largestNumber, receiptNumber);
+    }, 0);
+    const nextReceiptId = `REC-${String(lastReceiptNumber + 1).padStart(6, "0")}`;
+    const receiptProducts = cart.flatMap((cartItem) => {
+      const product = products.find((item) => item.id === cartItem.id);
+      if (!product) return [];
+
+      return [{
+        id: product.id,
+        quantity: Number(cartItem.quantity),
+        storeBelong: cartItem.storeBelong || product.storeBelong,
+      }];
+    });
+
+    if (receiptProducts.length === 0) return;
+
+    const total = cart.reduce((sum, cartItem) => {
+      const product = products.find((item) => item.id === cartItem.id);
+      return sum + (product?.price ?? 0) * Number(cartItem.quantity);
+    }, 0);
+
+    addingNewReceipt({
+      id: nextReceiptId,
+      dateCreated: new Date().toISOString(),
+      products: receiptProducts,
+      total: total,
+    });
+    clearCart();
+    // Alert.alert("Checkout", "Receipt saving is not connected yet.");
   };
 
   return (
@@ -337,3 +370,5 @@ const styles = StyleSheet.create({
 });
 
 export default Cart;
+
+

@@ -3,15 +3,15 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 
 const CART_STORAGE_KEY = "@storetracker/cart";
 
-export type CartDataModel = {
+type CartItem = {
   id: string;
   quantity: number;
   storeBelong: string;
 };
 
-export interface CartContextModel {
-  cart: CartDataModel[];
-  addToCart: (p: CartDataModel) => void;
+interface CartContextModel {
+  cart: CartItem[];
+  addToCart: (item: CartItem) => void;
   updateQuantity: (productId: string, change: number) => void;
   clearCart: () => void;
 }
@@ -19,29 +19,31 @@ export interface CartContextModel {
 export const CartContext = createContext<CartContextModel | null>(null);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartDataModel[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [storageLoaded, setStorageLoaded] = useState(false);
 
   useEffect(() => {
-    let active = true;
+    let isMounted = true;
 
     const loadCart = async () => {
       try {
         const savedCart = await AsyncStorage.getItem(CART_STORAGE_KEY);
-        if (active && savedCart) {
-          const parsed: unknown = JSON.parse(savedCart);
-          if (Array.isArray(parsed)) setCart(parsed as CartDataModel[]);
+        if (!savedCart) return;
+
+        const parsedCart: unknown = JSON.parse(savedCart);
+        if (isMounted && Array.isArray(parsedCart)) {
+          setCart(parsedCart as CartItem[]);
         }
       } catch (error) {
         console.warn("Could not load saved cart", error);
       } finally {
-        if (active) setStorageLoaded(true);
+        if (isMounted) setStorageLoaded(true);
       }
     };
 
     void loadCart();
     return () => {
-      active = false;
+      isMounted = false;
     };
   }, []);
 
@@ -53,20 +55,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   }, [cart, storageLoaded]);
 
-  const addToCart = (p: CartDataModel) => {
-    setCart((prev) => {
-      const pExist = prev.find((c) => c.id === p.id);
+  const addToCart = (item: CartItem) => {
+    setCart((currentCart) => {
+      const alreadyInCart = currentCart.some((cartItem) => cartItem.id === item.id);
 
-      if (pExist) {
-        return prev.map((c) => (c.id === p.id ? { ...c, quantity: c.quantity + 1 } : c));
+      if (alreadyInCart) {
+        return currentCart.map((cartItem) =>
+          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem,
+        );
       }
-      return [...prev, { ...p, quantity: 1 }];
+
+      return [...currentCart, { ...item, quantity: 1 }];
     });
   };
 
   const updateQuantity = (productId: string, change: number) => {
-    setCart((prev) =>
-      prev
+    setCart((currentCart) =>
+      currentCart
         .map((item) =>
           item.id === productId ? { ...item, quantity: item.quantity + change } : item,
         )
@@ -84,9 +89,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useCart = () => {
-  const useCartContext = useContext(CartContext);
-  if (!useCartContext) {
-    throw new Error("useStore must be used within a StoreProvider");
+  const cartContext = useContext(CartContext);
+  if (!cartContext) {
+    throw new Error("useCart must be used inside of CartProvider.");
   }
-  return useCartContext;
+  return cartContext;
 };

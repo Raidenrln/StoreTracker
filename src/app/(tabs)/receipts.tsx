@@ -11,9 +11,12 @@ const Receipt = () => {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>Receipts </Text>
-            <Pressable>
-              <SunDim size={36} />
+            <View>
+              <Text style={styles.title}>Receipts</Text>
+              <Text style={styles.subtitle}>Track your purchases and spending</Text>
+            </View>
+            <Pressable style={styles.settingsButton} accessibilityLabel="Receipt settings">
+              <SunDim size={24} color="#1C3027" />
             </Pressable>
           </View>
           {/*  */}
@@ -56,12 +59,12 @@ const Receipt = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 16,
   },
   content: {
     flex: 1,
-    gap: 12,
+    gap: 14,
   },
   header: {
     justifyContent: "space-between",
@@ -69,8 +72,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: 700,
+  },
+  subtitle: {
+    color: "#718078",
+    fontSize: 14,
+    marginTop: 2,
+  },
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#CAD8CA",
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
   },
   categoryTabContainer: {
     backgroundColor: "#E6EEE7",
