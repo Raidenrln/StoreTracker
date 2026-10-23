@@ -2,9 +2,11 @@ import { useCart } from "@/context/CartContext";
 import { useProduct } from "@/context/ProductContext";
 import { useReceipt } from "@/context/ReceiptContext";
 import { useStore } from "@/context/StoreContext";
-import { SunDim } from "lucide-react-native";
+import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import SettingsButton from "../../components/Settings";
+import CheckoutSuccessModal from "../../components/modals/CheckoutSuccessModal";
 
 const formatCurrency = (amount: number) =>
   `₱${amount.toLocaleString("en-PH", { maximumFractionDigits: 2 })}`;
@@ -14,6 +16,7 @@ const Cart = () => {
   const { products } = useProduct();
   const { cart, updateQuantity, clearCart } = useCart();
   const { receipt, addingNewReceipt } = useReceipt();
+  const [checkedOutReceipt, setCheckedOutReceipt] = useState("");
   const groupedCart = stores
     .map((store) => {
       const items = cart
@@ -46,11 +49,19 @@ const Cart = () => {
       const product = products.find((item) => item.id === cartItem.id);
       if (!product) return [];
 
-      return [{
-        id: product.id,
-        quantity: Number(cartItem.quantity),
-        storeBelong: cartItem.storeBelong || product.storeBelong,
-      }];
+      return [
+        {
+          id: product.id,
+          quantity: Number(cartItem.quantity),
+          storeBelong: cartItem.storeBelong || product.storeBelong,
+          storeName: stores.find(
+            (store) => store.id === (cartItem.storeBelong || product.storeBelong),
+          )?.name,
+          name: product.name,
+          price: product.price,
+          unit: product.unit,
+        },
+      ];
     });
 
     if (receiptProducts.length === 0) return;
@@ -67,6 +78,7 @@ const Cart = () => {
       total: total,
     });
     clearCart();
+    setCheckedOutReceipt(nextReceiptId);
     // Alert.alert("Checkout", "Receipt saving is not connected yet.");
   };
 
@@ -82,7 +94,7 @@ const Cart = () => {
             <Text style={styles.title}>Cart</Text>
           </View>
           <Pressable style={styles.settingsButton} accessibilityLabel="Cart settings">
-            <SunDim size={24} color={COLORS.text} />
+            <SettingsButton />
           </Pressable>
         </View>
 
@@ -164,6 +176,11 @@ const Cart = () => {
           </>
         )}
       </ScrollView>
+      <CheckoutSuccessModal
+        visible={!!checkedOutReceipt}
+        receiptId={checkedOutReceipt}
+        onClose={() => setCheckedOutReceipt("")}
+      />
     </SafeAreaView>
   );
 };
@@ -370,5 +387,3 @@ const styles = StyleSheet.create({
 });
 
 export default Cart;
-
-

@@ -7,6 +7,10 @@ type ProductBought = {
   id: string;
   quantity: number;
   storeBelong: string;
+  name?: string;
+  price?: number;
+  unit?: string;
+  storeName?: string;
 };
 
 type ReceiptDataModel = {
@@ -19,6 +23,7 @@ type ReceiptDataModel = {
 interface ReceiptContextModel {
   receipt: ReceiptDataModel[];
   addingNewReceipt: (receipt: ReceiptDataModel) => void;
+  deleteReceipt: (receiptId: string) => void;
 }
 
 export const ReceiptContext = createContext<ReceiptContextModel | null>(null);
@@ -64,8 +69,12 @@ export const ReceiptProvider = ({ children }: { children: ReactNode }) => {
     setReceipt((currentReceipts) => [...currentReceipts, newReceipt]);
   };
 
+  const deleteReceipt = (receiptId: string) => {
+    setReceipt((currentReceipts) => currentReceipts.filter((item) => item.id !== receiptId));
+  };
+
   return (
-    <ReceiptContext.Provider value={{ receipt, addingNewReceipt }}>
+    <ReceiptContext.Provider value={{ receipt, addingNewReceipt, deleteReceipt }}>
       {children}
     </ReceiptContext.Provider>
   );

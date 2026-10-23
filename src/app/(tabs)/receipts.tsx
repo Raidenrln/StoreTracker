@@ -1,11 +1,27 @@
-import { SunDim } from "lucide-react-native";
+import { useReceipt } from "@/context/ReceiptContext";
+import { useToast } from "@/context/ToastContext";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import CalendarReceiptList from "../components/CalendarReceiptList";
-import ListReceipt from "../components/ListReceipt";
+import CalendarReceiptList from "../../components/CalendarReceiptList";
+import ListReceipt from "../../components/ListReceipt";
+import SettingsButton from "../../components/Settings";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
+import ReceiptModal, { type ReceiptDetails } from "../../components/modals/ReceiptModal";
 const Receipt = () => {
   const [activeTab, setActiveTab] = useState("list");
+  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptDetails | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { deleteReceipt } = useReceipt();
+  const showToast = useToast();
+  const confirmReceiptDelete = () => {
+    if (selectedReceipt) {
+      deleteReceipt(selectedReceipt.id);
+      showToast("Receipt deleted");
+    }
+    setConfirmDelete(false);
+    setSelectedReceipt(null);
+  };
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
       <View style={styles.container}>
@@ -16,7 +32,7 @@ const Receipt = () => {
               <Text style={styles.subtitle}>Track your purchases and spending</Text>
             </View>
             <Pressable style={styles.settingsButton} accessibilityLabel="Receipt settings">
-              <SunDim size={24} color="#1C3027" />
+              <SettingsButton />
             </Pressable>
           </View>
           {/*  */}
@@ -48,10 +64,22 @@ const Receipt = () => {
           </View>
 
           {/*  */}
-          {activeTab === "list" && <ListReceipt />}
-          {activeTab === "calendar" && <CalendarReceiptList />}
+          {activeTab === "list" && <ListReceipt onSelectReceipt={setSelectedReceipt} />}
+          {activeTab === "calendar" && <CalendarReceiptList onSelectReceipt={setSelectedReceipt} />}
         </View>
       </View>
+      <ReceiptModal
+        visible={!!selectedReceipt}
+        receipt={selectedReceipt}
+        onClose={() => setSelectedReceipt(null)}
+        onDelete={() => setConfirmDelete(true)}
+      />
+      <ConfirmDeleteModal
+        visible={confirmDelete}
+        itemName="receipt"
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={confirmReceiptDelete}
+      />
     </SafeAreaView>
   );
 };

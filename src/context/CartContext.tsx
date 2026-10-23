@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useToast } from "./ToastContext";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 const CART_STORAGE_KEY = "@storetracker/cart";
@@ -19,6 +20,7 @@ interface CartContextModel {
 export const CartContext = createContext<CartContextModel | null>(null);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+  const showToast = useToast();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [storageLoaded, setStorageLoaded] = useState(false);
 
@@ -67,6 +69,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
       return [...currentCart, { ...item, quantity: 1 }];
     });
+    showToast("Added to cart");
   };
 
   const updateQuantity = (productId: string, change: number) => {

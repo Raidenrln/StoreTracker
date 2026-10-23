@@ -17,6 +17,8 @@ export type StoreDataModel = {
 interface StoreContextModel {
   stores: StoreDataModel[];
   addingNewStore: (store: StoreDataModel) => void;
+  updateStore: (store: StoreDataModel) => void;
+  deleteStore: (storeId: string) => void;
 }
 
 export const StoreContext = createContext<StoreContextModel | null>(null);
@@ -62,8 +64,20 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     setStores((currentStores) => [...currentStores, store]);
   };
 
+  const updateStore = (updatedStore: StoreDataModel) => {
+    setStores((currentStores) =>
+      currentStores.map((store) => (store.id === updatedStore.id ? updatedStore : store)),
+    );
+  };
+
+  const deleteStore = (storeId: string) => {
+    setStores((currentStores) => currentStores.filter((store) => store.id !== storeId));
+  };
+
   return (
-    <StoreContext.Provider value={{ stores, addingNewStore }}>{children}</StoreContext.Provider>
+    <StoreContext.Provider value={{ stores, addingNewStore, updateStore, deleteStore }}>
+      {children}
+    </StoreContext.Provider>
   );
 };
 

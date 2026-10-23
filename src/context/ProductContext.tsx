@@ -24,6 +24,8 @@ export type ProductDataModel = {
 interface ProductContextModel {
   products: ProductDataModel[];
   addProduct: (product: ProductDataModel) => void;
+  updateProduct: (product: ProductDataModel) => void;
+  deleteProduct: (productId: string) => void;
 }
 
 export const ProductContext = createContext<ProductContextModel | null>(null);
@@ -69,8 +71,22 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setProducts((currentProducts) => [...currentProducts, product]);
   };
 
+  const updateProduct = (updatedProduct: ProductDataModel) => {
+    setProducts((currentProducts) =>
+      currentProducts.map((product) =>
+        product.id === updatedProduct.id ? updatedProduct : product,
+      ),
+    );
+  };
+
+  const deleteProduct = (productId: string) => {
+    setProducts((currentProducts) => currentProducts.filter((product) => product.id !== productId));
+  };
+
   return (
-    <ProductContext.Provider value={{ products, addProduct }}>{children}</ProductContext.Provider>
+    <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
+      {children}
+    </ProductContext.Provider>
   );
 };
 

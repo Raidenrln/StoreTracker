@@ -1,86 +1,49 @@
-import { useStore } from "@/context/StoreContext";
-import { Plus, Search, Settings } from "lucide-react-native";
-import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useCategories } from "@/context/CategoriesContext";
+import { useProduct, type ProductDataModel } from "@/context/ProductContext";
+import { useStore, type StoreDataModel } from "@/context/StoreContext";
+import { Plus, Search, Store as StoreIcon } from "lucide-react-native";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import StoreCard from "../components/StoreCard";
-import AddingStore from "../components/modals/AddingStore";
-
-export const tindahan = [
-  {
-    id: "341312334521321",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "341312321345343321",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "34133124543321321",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "341316543623213231",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "34133121231321321",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "341312312123231321",
-    name: "Aling Nena Sari-Sariiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "34131232332131321",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-  {
-    id: "34131213213321",
-    name: "Aling Nena Sari-Sari",
-    category: "Grocery",
-    openTime: "08:00",
-    closeTime: "20:00",
-    facebook: "",
-  },
-];
+import AddingStore from "../../components/modals/AddingStore";
+import CompareProductModal from "../../components/modals/CompareProductModal";
+import EditProductModal from "../../components/modals/EditProductModal";
+import EditStoreModal from "../../components/modals/EditStoreModal";
+import ProductDetailsModal from "../../components/modals/ProductDetailsModal";
+import StoreDetailsModal from "../../components/modals/StoreDetailsModal";
+import SettingsButton from "../../components/Settings";
+import StoreCard from "../../components/StoreCard";
 
 export default function Store() {
-  const category = ["All", "Grocery", "Pharmacy", "Hardware", "Bakery"];
   const [activeCategory, setActiveCategory] = useState("All");
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchStore, setSearchStore] = useState("");
-  const { stores } = useStore();
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+  const [selectedStore, setSelectedStore] = useState<StoreDataModel | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductDataModel | null>(null);
+  const [activeModal, setActiveModal] = useState<
+    "details" | "editStore" | "productDetails" | "editProduct" | "compare" | null
+  >(null);
+  const { stores, updateStore } = useStore();
+  const { updateProduct } = useProduct();
+  const { addToCart } = useCart();
+  const { storeCategories } = useCategories();
+  const categories = ["All", ...storeCategories.filter((item) => item !== "All")];
+  const selectedCategory = categories.includes(activeCategory) ? activeCategory : "All";
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setSelectedStore(null);
+    setSelectedProduct(null);
+  };
+
   const filteredStore = stores.filter((s) => {
-    const matchesCategory = activeCategory === "All" || s.category === activeCategory;
+    const matchesCategory = selectedCategory === "All" || s.category === selectedCategory;
     const matchesSearch = s.name.toLowerCase().includes(searchStore.trim().toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -106,7 +69,7 @@ export default function Store() {
                 <Plus color={"white"} style={{ alignSelf: "center" }} size={32} />
               </Pressable>
               <Pressable style={{ alignSelf: "center" }}>
-                <Settings size={36} />
+                <SettingsButton />
               </Pressable>
             </View>
           </View>
@@ -127,10 +90,10 @@ export default function Store() {
             style={{ flexGrow: 0 }}
             contentContainerStyle={styles.categoryContent}
           >
-            {category.map((item) => (
+            {categories.map((item) => (
               <Pressable
                 key={item}
-                style={activeCategory === item ? styles.activeCategory : styles.categoryButtons}
+                style={selectedCategory === item ? styles.activeCategory : styles.categoryButtons}
                 onPress={() => setActiveCategory(item)}
               >
                 <Text
@@ -148,15 +111,111 @@ export default function Store() {
             <FlatList
               data={filteredStore}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <StoreCard stores={item} />}
-              contentContainerStyle={{ gap: 12, paddingBottom: 16 }}
+              renderItem={({ item }) => (
+                <StoreCard
+                  stores={item}
+                  currentTime={currentTime}
+                  onViewDetails={() => {
+                    setSelectedStore(item);
+                    setActiveModal("details");
+                  }}
+                  onEdit={() => {
+                    setSelectedStore(item);
+                    setActiveModal("editStore");
+                  }}
+                />
+              )}
+              contentContainerStyle={{ gap: 12, paddingBottom: 16, flexGrow: 1 }}
               showsVerticalScrollIndicator={false}
-              ListEmptyComponent={<Text>No stores found.</Text>}
+              ListEmptyComponent={() => {
+                const hasStores = stores.length > 0;
+                const EmptyIcon = hasStores ? Search : StoreIcon;
+
+                return (
+                  <View style={styles.emptyState}>
+                    <View style={styles.emptyIcon}>
+                      <EmptyIcon color="#15714A" size={28} />
+                    </View>
+                    <Text style={styles.emptyTitle}>
+                      {hasStores ? "No stores match these filters" : "Start with your first store"}
+                    </Text>
+                    <Text style={styles.emptyDescription}>
+                      {hasStores
+                        ? "Try a different search or category to find a store."
+                        : "Save nearby stores so you can track their prices and opening hours."}
+                    </Text>
+                    <Pressable
+                      style={styles.emptyAction}
+                      onPress={() => {
+                        if (hasStores) {
+                          setActiveCategory("All");
+                          setSearchStore("");
+                        } else {
+                          setShowAddModal(true);
+                        }
+                      }}
+                    >
+                      {!hasStores ? <Plus color="white" size={18} /> : null}
+                      <Text style={styles.emptyActionText}>
+                        {hasStores ? "Clear search and filters" : "Add a store"}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              }}
             />
           </View>
         </View>
       </View>
       {showAddModal && <AddingStore onClose={setShowAddModal} />}
+      {selectedStore && activeModal === "details" ? (
+        <StoreDetailsModal
+          store={selectedStore}
+          onClose={closeModal}
+          onEdit={() => setActiveModal("editStore")}
+          onViewProduct={(product) => {
+            setSelectedProduct(product);
+            setActiveModal("productDetails");
+          }}
+          onEditProduct={(product) => {
+            setSelectedProduct(product);
+            setActiveModal("editProduct");
+          }}
+          onCompareProduct={(product) => {
+            setSelectedProduct(product);
+            setActiveModal("compare");
+          }}
+        />
+      ) : null}
+      {selectedStore && activeModal === "editStore" ? (
+        <EditStoreModal store={selectedStore} onClose={closeModal} onSave={updateStore} />
+      ) : null}
+      {selectedProduct && activeModal === "productDetails" ? (
+        <ProductDetailsModal
+          product={selectedProduct}
+          onClose={closeModal}
+          onEdit={() => setActiveModal("editProduct")}
+          onAddToCart={() => {
+            addToCart({
+              id: selectedProduct.id,
+              quantity: 0,
+              storeBelong: selectedProduct.storeBelong,
+            });
+            closeModal();
+          }}
+        />
+      ) : null}
+      {selectedProduct && activeModal === "editProduct" ? (
+        <EditProductModal
+          product={selectedProduct}
+          stores={stores}
+          onClose={closeModal}
+          onSave={updateProduct}
+        />
+      ) : null}
+      {selectedProduct && activeModal === "compare" ? (
+        <CompareProductModal product={selectedProduct} onClose={closeModal} />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -224,4 +283,39 @@ const styles = StyleSheet.create({
     minHeight: 0,
     borderRadius: 24,
   },
+  emptyState: {
+    flex: 1,
+    minHeight: 260,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    gap: 10,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#DDE6DE",
+    backgroundColor: "white",
+  },
+  emptyIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E6EEE7",
+    marginBottom: 4,
+  },
+  emptyTitle: { color: "#1A3024", fontSize: 18, fontWeight: "700", textAlign: "center" },
+  emptyDescription: { color: "#647368", fontSize: 14, lineHeight: 20, textAlign: "center" },
+  emptyAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    minHeight: 46,
+    marginTop: 4,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    backgroundColor: "#15714A",
+  },
+  emptyActionText: { color: "white", fontSize: 15, fontWeight: "700" },
 });

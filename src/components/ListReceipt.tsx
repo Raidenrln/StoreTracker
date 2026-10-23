@@ -1,12 +1,14 @@
 import { useReceipt } from "@/context/ReceiptContext";
 import { ReceiptText } from "lucide-react-native";
-import { useState } from "react";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import ReceiptModal, { ReceiptDetails } from "./modals/ReceiptModal";
+import type { ReceiptDetails } from "./modals/ReceiptModal";
 
-const ListReceipt = () => {
+const ListReceipt = ({
+  onSelectReceipt,
+}: {
+  onSelectReceipt: (receipt: ReceiptDetails) => void;
+}) => {
   const now = new Date();
-  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptDetails | null>(null);
   const { receipt } = useReceipt();
   // useEffect(() => {
   //   console.log(receipt);
@@ -101,7 +103,6 @@ const ListReceipt = () => {
   };
 
   const handlePressReceipt = (item: any) => {
-    // Safely calculate total items
     const totalItems =
       item.products?.reduce((sum: number, p: any) => sum + (p.quantity || 1), 0) || 0;
 
@@ -123,7 +124,7 @@ const ListReceipt = () => {
       items: storeGroups[storeName],
     }));
 
-    setSelectedReceipt({
+    onSelectReceipt({
       id: item.id,
       date: new Date(item.dateCreated).toLocaleDateString("en-US", {
         month: "short",
@@ -174,7 +175,21 @@ const ListReceipt = () => {
             showsVerticalScrollIndicator={false}
             bounces={false}
             contentInsetAdjustmentBehavior="never"
-            contentContainerStyle={styles.receiptListContent}
+            contentContainerStyle={[
+              styles.receiptListContent,
+              montlyFilterShowList.length === 0 && styles.emptyReceiptListContent,
+            ]}
+            ListEmptyComponent={
+              <View style={styles.emptyReceiptState}>
+                <View style={styles.emptyReceiptIcon}>
+                  <ReceiptText color="#1E764F" size={22} />
+                </View>
+                <Text style={styles.emptyReceiptTitle}>No receipts this month</Text>
+                <Text style={styles.emptyReceiptMessage}>
+                  Your receipts from this month will appear here.
+                </Text>
+              </View>
+            }
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.receiptContent}
@@ -197,15 +212,6 @@ const ListReceipt = () => {
           />
         </View>
       </View>
-      <ReceiptModal
-        visible={!!selectedReceipt}
-        receipt={selectedReceipt}
-        onClose={() => setSelectedReceipt(null)}
-        onDelete={() => {
-          console.log("Delete receipt", selectedReceipt?.id);
-          setSelectedReceipt(null);
-        }}
-      />
     </View>
   );
 };
@@ -269,6 +275,34 @@ const styles = StyleSheet.create({
   receiptListContent: {
     paddingTop: 4,
     paddingBottom: 4,
+  },
+  emptyReceiptListContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
+  emptyReceiptState: {
+    alignItems: "center",
+    padding: 24,
+    gap: 8,
+  },
+  emptyReceiptIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#E6EEE7",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyReceiptTitle: {
+    color: "#1C3027",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  emptyReceiptMessage: {
+    color: "#718078",
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
   },
   receiptContent: {
     alignContent: "center",

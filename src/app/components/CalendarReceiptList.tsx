@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import ReceiptModal, { ReceiptDetails } from "./modals/ReceiptModal";
+import type { ReceiptDetails } from "./modals/ReceiptModal";
 
 type SelectedDateModel = {
   year: string;
@@ -24,13 +24,17 @@ type SelectedDateModel = {
 //   { id: "REC-000000000003", date: "2026-09-21", total: 552 },
 // ];
 
-const CalendarReceiptList = () => {
+const CalendarReceiptList = ({
+  onSelectReceipt,
+}: {
+  onSelectReceipt: (receipt: ReceiptDetails) => void;
+}) => {
   const now = new Date();
   const dateNow = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const [currentMonth, setCurrentMonth] = useState(dateNow);
   const [selectedDay, setSelectedDay] = useState(dateNow);
-  const [selectedReceipt, setSelectedReceipt] = useState<ReceiptDetails | null>(null);
   const { receipt } = useReceipt();
+
   const changeMonth = (amount: number) => {
     const date = new Date(`${currentMonth}T12:00:00`);
 
@@ -151,7 +155,7 @@ const CalendarReceiptList = () => {
       items: storeGroups[storeName],
     }));
 
-    setSelectedReceipt({
+    onSelectReceipt({
       id: item.id,
       date: new Date(item.dateCreated).toLocaleDateString("en-US", {
         month: "short",
@@ -346,16 +350,6 @@ const CalendarReceiptList = () => {
           />
         </View>
       </View>
-
-      <ReceiptModal
-        visible={!!selectedReceipt}
-        receipt={selectedReceipt}
-        onClose={() => setSelectedReceipt(null)}
-        onDelete={() => {
-          console.log("Delete receipt", selectedReceipt?.id);
-          setSelectedReceipt(null);
-        }}
-      />
     </ScrollView>
   );
 };
