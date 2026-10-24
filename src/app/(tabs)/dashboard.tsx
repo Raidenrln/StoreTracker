@@ -4,7 +4,7 @@ import { useStore } from "@/context/StoreContext";
 import { Clock, Receipt, TrendingDown, TrendingUp } from "lucide-react-native";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SettingsButton from "../../components/Settings";
+import SettingsButton from "../../components/SettingsButton";
 
 // ---------- Colors ----------
 const COLORS = {

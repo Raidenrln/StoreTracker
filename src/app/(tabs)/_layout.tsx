@@ -60,7 +60,13 @@ const TabLayout = () => {
                       tabBarIcon: ({ color, size }) => <Receipt color={color} size={size} />,
                     }}
                   />
-                  <Tabs.Screen name="settings" options={{ href: null }} />
+                  <Tabs.Screen
+                    name="settings"
+                    options={{
+                      tabBarButton: () => null,
+                      tabBarItemStyle: { display: "none" },
+                    }}
+                  />
                 </Tabs>
               </ReceiptProvider>
             </CartProvider>

@@ -12,7 +12,7 @@ import EditProductModal from "../../components/modals/EditProductModal";
 import EditStoreModal from "../../components/modals/EditStoreModal";
 import ProductDetailsModal from "../../components/modals/ProductDetailsModal";
 import StoreDetailsModal from "../../components/modals/StoreDetailsModal";
-import SettingsButton from "../../components/Settings";
+import SettingsButton from "../../components/SettingsButton";
 import StoreCard from "../../components/StoreCard";
 
 export default function Store() {

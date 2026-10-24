@@ -11,7 +11,7 @@ import CompareProductModal from "../../components/modals/CompareProductModal";
 import EditProductModal from "../../components/modals/EditProductModal";
 import ProductDetailsModal from "../../components/modals/ProductDetailsModal";
 import ProductCard from "../../components/ProductCard";
-import SettingsButton from "../../components/Settings";
+import SettingsButton from "../../components/SettingsButton";
 
 type ProductModal = "details" | "edit" | "compare" | null;
 

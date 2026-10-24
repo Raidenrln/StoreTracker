@@ -5,7 +5,7 @@ import { useStore } from "@/context/StoreContext";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import SettingsButton from "../../components/Settings";
+import SettingsButton from "../../components/SettingsButton";
 import CheckoutSuccessModal from "../../components/modals/CheckoutSuccessModal";
 
 const formatCurrency = (amount: number) =>

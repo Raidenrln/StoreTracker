@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CalendarReceiptList from "../../components/CalendarReceiptList";
 import ListReceipt from "../../components/ListReceipt";
-import SettingsButton from "../../components/Settings";
+import SettingsButton from "../../components/SettingsButton";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import ReceiptModal, { type ReceiptDetails } from "../../components/modals/ReceiptModal";
 const Receipt = () => {

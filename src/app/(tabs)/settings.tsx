@@ -1,5 +1,5 @@
 import { useCategories } from "@/context/CategoriesContext";
-import { Check, Plus, X } from "lucide-react-native";
+import { Plus, X } from "lucide-react-native";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
@@ -55,21 +55,6 @@ function ChipSection({ title, items, onAdd, onRemove }: ChipSectionProps) {
   );
 }
 
-// ---------- A row with a green checkbox ----------
-
-type CheckRowProps = { label: string; checked: boolean; onToggle: () => void };
-
-function CheckRow({ label, checked, onToggle }: CheckRowProps) {
-  return (
-    <Pressable style={styles.row} onPress={onToggle}>
-      <Text style={styles.rowLabel}>{label}</Text>
-      <View style={[styles.checkbox, !checked && styles.checkboxOff]}>
-        {checked && <Check size={28} color="white" />}
-      </View>
-    </Pressable>
-  );
-}
-
 // ---------- The screen ----------
 
 export default function Settings() {
@@ -80,11 +65,6 @@ export default function Settings() {
     product: productCategories,
     unit: unitTypes,
   };
-
-  const [priceAlerts, setPriceAlerts] = useState(true);
-  const [closingReminder, setClosingReminder] = useState(true);
-
-  // Which list we're adding to (null = popup closed)
 
   const [adding, setAdding] = useState<ListName | null>(null);
   const [newName, setNewName] = useState("");
@@ -128,30 +108,6 @@ export default function Settings() {
           onAdd={() => setAdding("unit")}
           onRemove={(item) => removeItem("unit", item)}
         />
-
-        {/* <Text style={styles.sectionTitle}>Alerts and app</Text>
-        <View style={styles.card}>
-          <CheckRow
-            label="Price change alerts"
-            checked={priceAlerts}
-            onToggle={() => setPriceAlerts(!priceAlerts)}
-          />
-          <CheckRow
-            label="Store closing reminder"
-            checked={closingReminder}
-            onToggle={() => setClosingReminder(!closingReminder)}
-          />
-
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Currency</Text>
-            <Text style={styles.currency}>₱ PHP</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.rowLabel}>Backup and export</Text>
-            <Text style={styles.mutedValue}>CSV</Text>
-          </View>
-        </View> */}
       </ScrollView>
 
       {/* Popup for typing a new item */}
