@@ -13,17 +13,6 @@ import {
 import { Calendar } from "react-native-calendars";
 import type { ReceiptDetails } from "./modals/ReceiptModal";
 
-type SelectedDateModel = {
-  year: string;
-  month: string;
-  day: string;
-};
-// const receipts = [
-//   { id: "REC-000000000001", date: "2026-10-19", total: 142 },
-//   { id: "REC-000000000002", date: "2026-10-20", total: 300 },
-//   { id: "REC-000000000003", date: "2026-09-21", total: 552 },
-// ];
-
 const CalendarReceiptList = ({
   onSelectReceipt,
 }: {
@@ -76,7 +65,6 @@ const CalendarReceiptList = ({
   useEffect(() => {
     // console.log("Current month:", currentMonth);
   });
-  const key = [{ color: "#E84A8A" }];
 
   const filteredList = receipt.filter((r) => {
     const receiptDate = new Date(r.dateCreated);
@@ -132,7 +120,7 @@ const CalendarReceiptList = ({
       },
     ]),
   );
-  console.log("List:", markedDateReceipt);
+  // console.log("List:", markedDateReceipt);
 
   const handlePressReceipt = (item: any) => {
     const totalItems =

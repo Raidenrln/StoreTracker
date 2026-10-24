@@ -5,17 +5,13 @@ import {
   OutlinedButton,
   OutlinedTextField,
   Shape,
+  Surface,
   Text,
   useNativeState,
 } from "@expo/ui/jetpack-compose";
-import {
-  background,
-  fillMaxWidth,
-  height,
-  padding,
-  weight,
-} from "@expo/ui/jetpack-compose/modifiers";
+import { fillMaxWidth, height, padding, weight } from "@expo/ui/jetpack-compose/modifiers";
 import type { ReactNode } from "react";
+import { View } from "react-native";
 
 export const colors = {
   green: "#15714A",
@@ -87,13 +83,11 @@ export function Bold({
 
 export function Tag({ label, color = colors.tag }: { label: string; color?: string }) {
   return (
-    <Text
-      color={colors.ink}
-      style={{ fontSize: 14 }}
-      modifiers={[background(color), padding(13, 7, 13, 7)]}
-    >
-      {label}
-    </Text>
+    <Surface color={color} shape={shapes.chip}>
+      <Text color={colors.ink} style={{ fontSize: 14 }} modifiers={[padding(13, 7, 13, 7)]}>
+        {label}
+      </Text>
+    </Surface>
   );
 }
 
@@ -165,6 +159,16 @@ export function ActionButton({
         {label}
       </Text>
     </Button>
+  );
+}
+
+export function NoTouch({ children, size }: { children: ReactNode; size: number }) {
+  // Fixed size: without it the hosted RN view fills the whole Compose parent
+  // and stretches the button.
+  return (
+    <View pointerEvents="none" style={{ width: size, height: size }}>
+      {children}
+    </View>
   );
 }
 

@@ -129,7 +129,7 @@ export default function Settings() {
           onRemove={(item) => removeItem("unit", item)}
         />
 
-        <Text style={styles.sectionTitle}>Alerts and app</Text>
+        {/* <Text style={styles.sectionTitle}>Alerts and app</Text>
         <View style={styles.card}>
           <CheckRow
             label="Price change alerts"
@@ -151,7 +151,7 @@ export default function Settings() {
             <Text style={styles.rowLabel}>Backup and export</Text>
             <Text style={styles.mutedValue}>CSV</Text>
           </View>
-        </View>
+        </View> */}
       </ScrollView>
 
       {/* Popup for typing a new item */}

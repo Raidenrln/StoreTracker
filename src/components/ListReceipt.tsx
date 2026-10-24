@@ -137,6 +137,13 @@ const ListReceipt = ({
     });
   };
 
+  const formatTotal = (price: number) => {
+    if (price >= 1000) {
+      return `${(price / 1000).toFixed(0)}k`;
+    }
+    return price;
+  };
+
   return (
     <View style={styles.container}>
       {/*  */}
@@ -147,19 +154,19 @@ const ListReceipt = ({
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
               Today
             </Text>
-            <Text style={styles.overviewCardPriceText}>₱{thisDayTotalFilter}</Text>
+            <Text style={styles.overviewCardPriceText}>₱{formatTotal(thisDayTotalFilter)}</Text>
           </View>
           <View style={styles.overviewCard}>
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
               This week
             </Text>
-            <Text style={styles.overviewCardPriceText}>₱{weekTotalFilter}</Text>
+            <Text style={styles.overviewCardPriceText}>₱{formatTotal(weekTotalFilter)}</Text>
           </View>
           <View style={styles.overviewCard}>
             <Text style={styles.overviewCardText} numberOfLines={1} adjustsFontSizeToFit>
               This month
             </Text>
-            <Text style={styles.overviewCardPriceText}>₱{monthTotalFilter}</Text>
+            <Text style={styles.overviewCardPriceText}>₱{formatTotal(monthTotalFilter)}</Text>
           </View>
         </View>
       </View>

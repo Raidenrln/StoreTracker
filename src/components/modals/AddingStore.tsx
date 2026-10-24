@@ -28,6 +28,7 @@ import { ChevronDown, Clock3, Plus, X } from "lucide-react-native";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import uuid from "react-native-uuid";
 import AddCategoryDialog from "./AddCategoryDialog";
+import { NoTouch } from "./ModalUI";
 interface AddingStoreModel {
   onClose: Dispatch<SetStateAction<boolean>>;
 }
@@ -130,7 +131,9 @@ export default function AddingStore({ onClose }: AddingStoreModel) {
                   colors={{ containerColor: "#FFFFFF", contentColor: "#5B6D62" }}
                   contentPadding={{ start: 4, top: 4, end: 4, bottom: 4 }}
                 >
-                  <X color="#5B6D62" size={20} />
+                  <NoTouch size={20}>
+                    <X color="#5B6D62" size={24} />
+                  </NoTouch>
                 </Button>
               </Row>
 
