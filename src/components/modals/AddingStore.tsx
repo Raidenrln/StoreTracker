@@ -149,7 +149,7 @@ export default function AddingStore({ onClose }: AddingStoreModel) {
                   modifiers={[fillMaxWidth()]}
                 >
                   <OutlinedTextField.Placeholder>
-                    <Text color="#858B87">e.g. Aling Nena Sari-Sari</Text>
+                    <Text color="#858B87">e.g. Seven evelyn</Text>
                   </OutlinedTextField.Placeholder>
                 </OutlinedTextField>
                 {errors.name ? (

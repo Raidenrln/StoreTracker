@@ -2,7 +2,7 @@
   "expo": {
     "name": "StoreTracker",
     "slug": "StoreTracker",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "storetracker",
@@ -42,6 +42,22 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "6dda2b5c-286f-43bd-ab98-269a621fb384"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6dda2b5c-286f-43bd-ab98-269a621fb384"
     }
   }
 }

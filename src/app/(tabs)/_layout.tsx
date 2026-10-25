@@ -6,7 +6,6 @@ import { StoreProvider } from "@/context/StoreContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { Tabs } from "expo-router";
 import { LayoutDashboard, Package, Receipt, ShoppingCart, Store } from "lucide-react-native";
-// ...providers imports unchanged
 
 const TabLayout = () => {
   return (
@@ -24,7 +23,7 @@ const TabLayout = () => {
                   }}
                 >
                   <Tabs.Screen
-                    name="dashboard"
+                    name="index"
                     options={{
                       title: "Dashboard",
                       tabBarIcon: ({ color, size }) => (
@@ -63,8 +62,7 @@ const TabLayout = () => {
                   <Tabs.Screen
                     name="settings"
                     options={{
-                      tabBarButton: () => null,
-                      tabBarItemStyle: { display: "none" },
+                      href: null,
                     }}
                   />
                 </Tabs>
