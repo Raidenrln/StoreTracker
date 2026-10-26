@@ -35,7 +35,6 @@ function StatCard({ number, label }: { number: number; label: string }) {
   );
 }
 
-// One row in the "Price changes" list
 function PriceChangeRow({
   product,
   store,
