@@ -6,7 +6,12 @@ export default function SettingsButton() {
   const router = useRouter();
 
   return (
-    <Pressable style={styles.button} onPress={() => router.push("/settings")}>
+    <Pressable
+      style={styles.button}
+      onPress={() => {
+        router.replace("/(tabs)/settings");
+      }}
+    >
       <Settings size={24} color="#12281c" strokeWidth={2.2} />
     </Pressable>
   );

@@ -1,6 +1,6 @@
 import { useCategories } from "@/context/CategoriesContext";
 import { Plus, X } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 // ---------- Colors ----------
@@ -81,6 +81,10 @@ export default function Settings() {
     setNewName("");
     setAdding(null);
   }
+
+  useEffect(() => {
+    console.log("Settings screen mounted");
+  }, []);
 
   return (
     <View style={styles.screen}>

@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Animated, Modal, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
 const ToastContext = createContext<((message: string) => void) | null>(null);
 
@@ -56,35 +56,30 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={showToast}>
       <View style={styles.root}>
         {children}
-        <Modal
-          visible={Boolean(toast)}
-          transparent
-          animationType="none"
-          statusBarTranslucent
-          presentationStyle="overFullScreen"
-          onRequestClose={() => undefined}
-        >
+
+        {toast ? (
           <View pointerEvents="box-none" style={styles.overlay}>
-            {toast ? (
-              <Animated.View
-                pointerEvents="none"
-                style={[
-                  styles.toast,
-                  {
-                    opacity: animation,
-                    transform: [
-                      {
-                        translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-                <Text style={styles.text}>{toast.text}</Text>
-              </Animated.View>
-            ) : null}
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.toast,
+                {
+                  opacity: animation,
+                  transform: [
+                    {
+                      translateY: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [16, 0],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <Text style={styles.text}>{toast.text}</Text>
+            </Animated.View>
           </View>
-        </Modal>
+        ) : null}
       </View>
     </ToastContext.Provider>
   );
@@ -98,14 +93,20 @@ export function useToast() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  overlay: { flex: 1, justifyContent: "flex-end", alignItems: "center", paddingBottom: 100 },
+  overlay: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 100,
+    zIndex: 1000,
+    elevation: 1000,
+  },
   toast: {
     backgroundColor: "#172D22",
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 24,
     elevation: 8,
-    zIndex: 1000,
   },
   text: { color: "white", fontSize: 15, fontWeight: "600" },
 });

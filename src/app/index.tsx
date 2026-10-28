@@ -1,5 +1,17 @@
-import { Redirect } from "expo-router";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
-  return <Redirect href="/(tabs)/dashboard" />;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/(tabs)/dashboard");
+  }, [router]);
+
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" />
+    </View>
+  );
 }

@@ -62,7 +62,8 @@ const TabLayout = () => {
                   <Tabs.Screen
                     name="settings"
                     options={{
-                      href: null,
+                      title: "Settings",
+                      tabBarItemStyle: { display: "none" },
                     }}
                   />
                 </Tabs>
